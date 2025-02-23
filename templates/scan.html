@@ -1,0 +1,73 @@
+<!-- egg_scan.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Egg Scan</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mui/material@5.0.0/dist/mui.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.4.0/dist/socket.io.min.js"></script>
+  <script>
+    // Initialize WebSocket connection
+    const socket = io.connect('http://localhost:5000');
+
+    // Listen for leaderboard updates from the server
+    socket.on('update_leaderboard', function(data) {
+      const leaderboardElement = document.getElementById('leaderboard');
+      leaderboardElement.innerHTML = '';
+      data.forEach(player => {
+        const playerDiv = document.createElement('div');
+        playerDiv.textContent = `${player.name}: ${player.score}`;
+        leaderboardElement.appendChild(playerDiv);
+      });
+    });
+
+    // Function to handle score submission
+    function submitScore() {
+      const playerUUID = document.getElementById('playerUUID').value;
+      fetch(`/egg_scan/${playerUUID}`, {
+        method: 'POST',
+        body: new URLSearchParams({ playerUUID }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      .then(response => response.text())
+      .then(data => {
+        // Display updated points in Snackbar
+        const snackbar = document.getElementById('snackbar');
+        snackbar.className = 'mui-snackbar mui-snackbar--open';
+        setTimeout(() => {
+          snackbar.className = 'mui-snackbar';
+        }, 3000);
+        document.getElementById('score').textContent = `Your total points: ${data}`;
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="mui-container">
+    <h2>Scan Successful! 🎉</h2>
+    
+    <div id="score">
+      <h4>Your current score: {{ points }}</h4>
+    </div>
+
+    <!-- Button to simulate score submission -->
+    <input type="hidden" id="playerUUID" value="{{ uuid }}">
+    <button class="mui-button mui-button--primary" onclick="submitScore()">Add Points</button>
+
+    <div id="snackbar" class="mui-snackbar">
+      <div class="mui-snackbar-content">
+        <span>Your score has been updated!</span>
+      </div>
+    </div>
+    
+    <h3>Leaderboard</h3>
+    <div id="leaderboard">
+      <!-- Leaderboard will update in real-time -->
+    </div>
+
+  </div>
+</body>
+</html>

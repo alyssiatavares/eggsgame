@@ -1,0 +1,31 @@
+<!-- templates/leaderboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mui/material@5.4.1/dist/material.min.css">
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container" style="text-align: center; margin-top: 50px;">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard">
+            {% for player in leaderboard %}
+                <li>{{ player.name }} - {{ player.score }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        var socket = io();
+        socket.on('update_leaderboard', function(data) {
+            let leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = '';
+            data.forEach(player => {
+                let li = document.createElement('li');
+                li.textContent = `${player.name} - ${player.score}`;
+                leaderboard.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

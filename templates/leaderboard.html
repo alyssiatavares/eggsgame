@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - Easter Egg Game</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mui/material@5.0.0/dist/mui.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.0.0/dist/mui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mui/icons-material@5.0.0/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.0.0/dist/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    .leaderboard-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .leaderboard-box {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th {
+      background-color: #3f51b5;
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .MuiTableCell-head {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="leaderboard-container">
+    <div class="leaderboard-box">
+      <h2>Leaderboard</h2>
+
+      <!-- MUI Table for displaying leaderboard -->
+      <table class="MuiTable-root">
+        <thead>
+          <tr>
+            <th class="MuiTableCell-root MuiTableCell-head">Rank</th>
+            <th class="MuiTableCell-root MuiTableCell-head">Player Name</th>
+            <th class="MuiTableCell-root MuiTableCell-head">Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <!-- Leaderboard rows will be dynamically inserted here by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Connect to the WebSocket server
+    const socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+    // Function to update the leaderboard table
+    function updateLeaderboard(leaderboard) {
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = ''; // Clear the existing rows
+
+      // Insert new leaderboard rows
+      leaderboard.forEach((player, index) => {
+        const row = document.createElement('tr');
+        
+        const rankCell = document.createElement('td');
+        rankCell.textContent = index + 1; // Display rank based on index
+        row.appendChild(rankCell);
+
+        const nameCell = document.createElement('td');
+        nameCell.textContent = player.name;
+        row.appendChild(nameCell);
+
+        const scoreCell = document.createElement('td');
+        scoreCell.textContent = player.score;
+        row.appendChild(scoreCell);
+
+        leaderboardBody.appendChild(row);
+      });
+    }
+
+    // Listen for 'update_leaderboard' event and update the leaderboard
+    socket.on('update_leaderboard', function(data) {
+      updateLeaderboard(data);
+    });
+  </script>
+</body>
+</html>
