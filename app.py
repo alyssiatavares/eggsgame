@@ -85,22 +85,29 @@ def leaderboard():
     return render_template('leaderboard.html', leaderboard=get_leaderboard())
 
 # Reset route to recreate eggs and reset players
-@app.route('/reset')
-def reset():
+@app.route('/reset/<int:generate_new_ids>')
+def reset(generate_new_ids):
     db.create_all()
     db.session.query(PlayerEgg).delete()
     db.session.query(Player).delete()
-    db.session.query(Egg).delete()
     db.session.commit()
     
-    # Add 25 new eggs
-    for _ in range(25):
-        egg = Egg(points=random.randint(10, 50))
-        db.session.add(egg)
-        eggs.append(egg)
+    if generate_new_ids == 1:
+        # Delete all eggs and create new eggs with new ids
+        db.session.query(Egg).delete()
+        db.session.commit()
+        
+        for _ in range(25):
+            egg = Egg(points=random.randint(10, 50))
+            db.session.add(egg)
+        db.session.commit()
+    else:
+        # Don't Reset the points of eggs and don't change the ids
+        eggs = Egg.query.all()
+        db.session.commit()
     
-      db.session.commit()
-    return render_template('eggs_table.html', eggs=eggs)
+    eggs = Egg.query.order_by(Egg.points.desc()).all()
+    return render_template('reset.html', eggs=eggs)
 
 # Handle WebSocket connection to send updates
 @socketio.on('connect')
