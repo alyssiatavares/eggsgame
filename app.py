@@ -97,9 +97,10 @@ def reset():
     for _ in range(25):
         egg = Egg(points=random.randint(10, 50))
         db.session.add(egg)
-    db.session.commit()
+        eggs.append(egg)
     
-    return jsonify({'message': 'Database reset with 25 new eggs'})
+      db.session.commit()
+    return render_template('eggs_table.html', eggs=eggs)
 
 # Handle WebSocket connection to send updates
 @socketio.on('connect')
