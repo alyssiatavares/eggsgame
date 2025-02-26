@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Egg - Easter Egg Game</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mui/material@5.0.0/dist/mui.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mui/material@5.0.0/dist/mui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mui/icons-material@5.0.0/dist/index.min.js"></script>
+  <style>
+    .form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f4f6f8;
+    }
+
+    .signup-box {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .mui-button--primary {
+      background-color: #3f51b5;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="signup-box">
+      <h2>Create new egg</h2>
+
+      <!-- create egg Form -->
+      <form method="POST" action="{{ url_for('egg_create') }}">
+        <div>
+          <div style="margin-bottom: 1rem;">
+            <label for="name" style="font-weight: bold;">Enter egg points *</label>
+            <input
+              type="number"
+              min="10" max="50"
+              name="points"
+
+              id="id_field_points"
+              required
+              placeholder="Egg points"
+              style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;"
+            />
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="mui-button mui-button--secondary"
+          style="width: 100%; padding: 10px; font-size: 1rem; border-radius: 4px; cursor: pointer;"
+        >
+          Create
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

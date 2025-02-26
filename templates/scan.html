@@ -32,7 +32,7 @@
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       })
-      .then(response => response.text())
+      .then(response => response.json())
       .then(data => {
         // Display updated points in Snackbar
         const snackbar = document.getElementById('snackbar');
@@ -40,7 +40,7 @@
         setTimeout(() => {
           snackbar.className = 'mui-snackbar';
         }, 3000);
-        document.getElementById('score').textContent = `Your total points: ${data}`;
+        document.getElementById('score').textContent = `Your total points: ${data.total_points}`;
       });
     }
   </script>

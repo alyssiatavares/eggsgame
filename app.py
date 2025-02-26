@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
-from  sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func
 import uuid
 import random
 
@@ -58,9 +58,12 @@ def scan(egg_id):
     if 'player_name' not in session:
         return redirect(url_for('signup'))
     
+    egg_id = str(egg_id).lower()
+    
     player = Player.query.filter_by(name=session['player_name']).first()
-    # egg = Egg.query.filter_by(id=str(egg_id)).first()
-    egg = Egg.query.order_by(func.random()).first()
+    egg = Egg.query.filter_by(id=egg_id).first()
+    
+    app.logger.info("player: %s, egg: %s", player, egg)
     
     if player and egg:
         # Check if player has already scanned this egg
@@ -84,7 +87,53 @@ def scan(egg_id):
 def leaderboard():
     return render_template('leaderboard.html', leaderboard=get_leaderboard())
 
-# Reset route to recreate eggs and reset players
+# Manager route
+@app.route('/eggs', methods=['GET'])
+def egg_list():
+    # Retrieves eggs sorted by score
+    eggs = Egg.query.order_by(Egg.points.desc()).all()
+    return render_template('eggs/list.html', eggs=eggs)
+
+@app.route('/eggs/create', methods=['GET', 'POST'])
+def egg_create():
+    # Create new egg
+    if request.method == 'POST':
+        points = request.form.get('points')
+        app.logger.info("creating egg with points: %s", points)
+        new_egg = Egg(points=request.form.get('points'))
+        db.session.add(new_egg)
+        db.session.commit()
+        flash('Egg created successfully', category='success')
+        return redirect(url_for('egg_list'))
+    return render_template('eggs/create.html')
+    
+@app.route('/eggs/update/<string:egg_id>', methods=['GET', 'POST'])
+def egg_update(egg_id):
+    # Modify points of one existent egg
+    if request.method == 'POST':
+        points = request.form.get('points')
+
+        egg = Egg.query.get(egg_id)
+        if egg:
+            app.logger.info("updating egg with points: %s", points)
+             # Check if the new points are different from the current points
+            egg.points = int(points)
+            db.session.commit()
+            flash('Egg modify successfully', category='success')
+        else:
+            flash('Egg not found', category='error')
+        return redirect(url_for('egg_list'))
+    return render_template('eggs/update.html', egg=Egg.query.get(str(egg_id).lower()))
+
+@app.route('/eggs/<string:egg_id>', methods=['POST'])
+def egg_delete(egg_id):
+    egg = Egg.query.get(egg_id)
+    if egg:
+        db.session.delete(egg)
+        db.session.commit()
+        flash('Egg deleted successfully', category='success')   
+    return redirect(url_for('egg_list'))
+    
 @app.route('/reset/<int:generate_new_ids>')
 def reset(generate_new_ids):
     db.create_all()
@@ -102,7 +151,7 @@ def reset(generate_new_ids):
             db.session.add(egg)
         db.session.commit()
     else:
-        # Don't Reset the points of eggs and don't change the ids
+        # Don't reset the points of eggs and don't change the ids
         eggs = Egg.query.all()
         db.session.commit()
     

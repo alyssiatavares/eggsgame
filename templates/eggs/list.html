@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Eggs - Easter Egg Game</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    .leaderboard-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .leaderboard-box {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th {
+      background-color: #3f51b5;
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .MuiTableCell-head {
+      font-weight: bold;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="leaderboard-container">
+    <div class="leaderboard-box">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class=flashes>
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+              <li style="color: red;">{{ message }}</li>
+            {% else %}
+              <li>{{ message }}</li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      <h2>Manage Eggs</h2>
+      <div class="button-container">
+        <a 
+          href="{{ url_for('egg_create') }}" 
+          type="submit" 
+          class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+            Create New Egg
+          </a>
+      </div>
+      <table class="MuiTable-root">
+        <thead>
+          <tr>
+            <th class="MuiTableCell-root MuiTableCell-head">ID Egg</th>
+            <th class="MuiTableCell-root MuiTableCell-head">Points</th>
+            <th class="MuiTableCell-root MuiTableCell-head">Modify</th>
+            <th class="MuiTableCell-root MuiTableCell-head">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for egg in eggs %}
+          <tr>
+            <td class="MuiTableCell-root">{{ egg.id|upper }}</td>
+            <td class="MuiTableCell-root">{{ egg.points }}</td>
+            <td>
+              <a 
+              href="{{ url_for('egg_update', egg_id=egg.id) }}" 
+              type="submit" 
+              class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                Modify
+              </a>
+            </td>
+            <td>
+              <form action="{{ url_for('egg_delete', egg_id=egg.id) }}" method="POST" style="display:inline;">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="egg_id" value="{{ egg.id }}">
+                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" style="background-color: red; color: white;">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
